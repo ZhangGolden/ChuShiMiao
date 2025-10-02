@@ -69,14 +69,177 @@
         <el-button class="button">批量设置发货附言</el-button>
         <el-button class="button">批量设置优惠</el-button>
       </div>
-      
-      
+
+      <table class="product-form-table">
+        <tr>
+          <td class="label-cell">商品轮播图</td>
+          <td class="content-cell">
+            <div class="upload-container">
+              <div class="image-preview-list">
+                <div
+                  v-for="(item, index) in uploadedFiles"
+                  :key="index"
+                  class="image-preview-item"
+                  :style="{ backgroundImage: `url(${item.url})` }"
+                >
+                  <div class="image-overlay">
+                    <el-icon class="remove-icon" @click.stop="removeFile(index)"><Close /></el-icon>
+                  </div>
+                </div>
+
+                <div class="upload-box" @click="triggerUpload">
+                  <el-icon class="upload-icon"><Plus /></el-icon>
+                </div>
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style="display: none"
+                  @change="handleFileChange"
+                />
+              </div>
+
+              <div class="upload-actions">
+                <el-button :class="{ active: uploadSource === 'local' }" @click="uploadSource = 'local'">本地</el-button>
+                <el-button :class="{ active: uploadSource === 'gallery' }" @click="uploadSource = 'gallery'">图库</el-button>
+                <span class="upload-count">您已选择{{ uploadedFiles.length }}/10张</span>
+              </div>
+
+              <div class="upload-tip">上传至这里的图片将成为商品首图，不上传默认用户头像。</div>
+            </div>
+          </td>
+          <td class="actions-cell" rowspan="9">
+            <div class="table-actions">
+              <a class="link-text">设置优惠</a>
+              <a class="link-text danger">删除</a>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label-cell">商品标题<span class="required-mark">*</span></td>
+          <td class="content-cell">
+            <el-input
+              v-model="productForm.title"
+              maxlength="50"
+              show-word-limit
+            />
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label-cell">快速选填</td>
+          <td class="content-cell">
+            <div class="quick-fill-grid">
+              <div class="field-item">
+                <span class="field-label">抽卡次数</span>
+                <el-input-number v-model="productForm.cardDrawCount" :min="0" />
+              </div>
+              <div class="field-item">
+                <span class="field-label">原石</span>
+                <el-input-number v-model="productForm.primogems" :min="0" />
+              </div>
+              <div class="field-item">
+                <span class="field-label">相遇之缘</span>
+                <el-input-number v-model="productForm.acquaintFate" :min="0" />
+              </div>
+              <div class="field-item">
+                <span class="field-label">账号等级</span>
+                <el-input-number v-model="productForm.accountLevel" :min="0" />
+              </div>
+              <div class="field-item">
+                <span class="field-label">热门角色</span>
+                <el-input v-model="productForm.popularCharacter" style="width: 160px" />
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label-cell">标题预览</td>
+          <td class="content-cell">
+            <div class="title-preview">
+              <span class="preview-label">标题预览：</span>
+              <span class="preview-text">{{ generateTitlePreview() }}</span>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label-cell">商品库存</td>
+          <td class="content-cell">
+            <div class="inventory-select">
+              <el-select v-model="productForm.inventoryType" placeholder="请选择">
+                <el-option label="现货" value="in_stock" />
+                <el-option label="预售" value="pre_sale" />
+              </el-select>
+              <el-button>选择</el-button>
+              <span class="hint-text">发货率：<span class="value-text">N%</span></span>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label-cell">商品单价<span class="required-mark">*</span></td>
+          <td class="content-cell">
+            <div class="price-input-wrapper">
+              <el-input v-model="productForm.price" placeholder="请输入单价">
+                <template #prepend>¥</template>
+                <template #append>元</template>
+              </el-input>
+              <span class="hint-text">预计到手：<span class="value-text">¥0</span></span>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label-cell">发货倍数</td>
+          <td class="content-cell">
+            <div class="multiplier-input-wrapper">
+              <el-input-number v-model="productForm.multiplier" :min="1" />
+              <span class="unit-text">倍</span>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label-cell">发货附言</td>
+          <td class="content-cell">
+            <el-input v-model="productForm.deliveryNote" placeholder="请输入您的留言" />
+            <div class="edit-link-wrapper">
+              <a class="link-text">编辑</a>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label-cell">规格与库存</td>
+          <td class="content-cell">
+            <div class="discount-preview">
+              <el-tag type="info" class="discount-tag">100件，2元</el-tag>
+              <el-tag type="info" class="discount-tag">200件，1.5元</el-tag>
+              <el-tag type="info" class="discount-tag">300件，1.3元</el-tag>
+              <el-tag type="info" class="discount-tag">400件，1元</el-tag>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- 新增商品按钮 -->
+      <div class="add-product-wrapper">
+        <el-button class="add-product-button" @click="handleAddProduct">
+          <el-checkbox v-model="addProductChecked" @click.stop />
+          <span class="button-text" style="padding: 10px;">新增商品</span>
+          <el-icon class="help-icon-button"><QuestionFilled /></el-icon>
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { QuestionFilled, Plus, Close } from '@element-plus/icons-vue'
 
 const props = defineProps({
@@ -96,7 +259,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'submit'])
 
 const formData = ref({ ...props.modelValue })
 const localSelectAll = ref(false)
@@ -104,10 +267,44 @@ const localSelectAll = ref(false)
 // SKU类型
 const skuType = ref('with')
 
+// 商品表单数据
+const productForm = ref({
+  title: '',
+  cardDrawCount: 99,
+  primogems: 200,
+  acquaintFate: 0,
+  accountLevel: 60,
+  popularCharacter: '',
+  inventoryType: '',
+  inventoryMethod: '',
+  price: '',
+  multiplier: 1,
+  deliveryNote: ''
+})
+
+// 生成标题预览
+const generateTitlePreview = () => {
+  const parts = []
+  if (productForm.value.cardDrawCount) parts.push(`抽卡次数${productForm.value.cardDrawCount}`)
+  if (productForm.value.primogems) parts.push(`原石${productForm.value.primogems}`)
+  if (productForm.value.accountLevel) parts.push(`账号等级${productForm.value.accountLevel}`)
+  parts.push(productForm.value.title || '我现在在描述一下商品')
+  return parts.join(' ')
+}
+
 // 文件上传相关
 const uploadedFiles = ref([])
 const uploadSource = ref('local')
 const fileInput = ref(null)
+
+// 新增商品
+const addProductChecked = ref(false)
+
+const handleAddProduct = () => {
+  console.log('添加新商品', addProductChecked.value)
+  // 这里添加新增商品的逻辑
+  emit('submit')
+}
 
 const triggerUpload = () => {
   if (uploadSource.value === 'local') {
@@ -747,6 +944,206 @@ watch(formData, (newVal) => {
   border-radius: 50%;
   font-size: 16px;
   margin-right: 12px;
+}
+
+/* 商品表单表格 */
+.product-form-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.product-form-table tr {
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.product-form-table tr:last-child {
+  border-bottom: none;
+}
+
+.label-cell {
+  width: 140px;
+  padding: 16px 20px;
+  background: #fafafa;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  vertical-align: top;
+  border-right: 1px solid #e8e8e8;
+  line-height: 1.6;
+}
+
+.content-cell {
+  padding: 16px 20px;
+  vertical-align: top;
+}
+
+.actions-cell {
+  width: 120px;
+  padding: 16px 20px;
+  vertical-align: top;
+  background: #f9f9f9;
+  border-left: 1px solid #e8e8e8;
+}
+
+.required-mark {
+  color: #ff4d4f;
+  margin-right: 4px;
+}
+
+.convenient-label {
+  display: block;
+  font-size: 12px;
+  color: #999;
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 快速填充网格 */
+.quick-fill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* 标题预览 */
+.title-preview {
+  width: 100%;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.preview-label {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.preview-text {
+  color: #1890ff;
+}
+
+/* 库存选择 */
+.inventory-select {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* 价格输入 */
+.price-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 倍数输入 */
+.multiplier-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit-text {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 编辑链接 */
+.edit-link-wrapper {
+  margin-top: 8px;
+}
+
+/* 规格信息 */
+.spec-info {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+/* 优惠预览 */
+.discount-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.discount-tag {
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+/* 新增商品按钮 */
+.add-product-wrapper {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.add-product-button {
+  background: #4a4a4a;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.add-product-button:hover {
+  background: #5a5a5a;
+}
+
+.add-product-button .button-text {
+  font-weight: 500;
+}
+
+.add-product-button .help-icon-button {
+  font-size: 18px;
+  color: #999;
+}
+
+/* 覆盖按钮内部 checkbox 样式 */
+.add-product-button :deep(.el-checkbox) {
+  margin-right: 0;
+}
+
+.add-product-button :deep(.el-checkbox__inner) {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #8a8a8a;
+  background-color: transparent;
+  border-radius: 4px;
+}
+
+.add-product-button :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+
+.add-product-button :deep(.el-checkbox__inner::after) {
+  width: 4px;
+  height: 8px;
+  left: 5px;
+  top: 2px;
 }
 </style>
 

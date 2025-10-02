@@ -276,6 +276,7 @@
           <AccountForm 
             v-if="selectedTypeName === '自抽号' || selectedTypeName === '账号'" 
             v-model="accountFormData"
+            @submit="submitForm"
           />
 
           <!-- 道具表单 -->
