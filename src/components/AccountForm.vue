@@ -1,5 +1,26 @@
 <template>
   <div class="account-form">
+    <!-- SKU类型选择 -->
+    <div class="sku-tabs">
+      <div
+        class="sku-tab"
+        :class="{ active: skuType === 'with' }"
+        @click="skuType = 'with'"
+      >
+        带SKU商品发布（SKU上限N条）
+      </div>
+      <div
+        class="sku-tab"
+        :class="{ active: skuType === 'without' }"
+        @click="skuType = 'without'"
+      >
+        不带SKU商品
+      </div>
+    </div>
+
+    <!-- 商品基本信息标题 -->
+    <h3 class="section-title"><span class="title-number">3.</span> 商品基本信息</h3>
+
     <!-- 快速选填 -->
     <div class="quick-fill">
       <div class="quick-fill-header">
@@ -43,146 +64,20 @@
 
     <!-- 批量设置标签页 -->
     <div class="batch-settings">
-      <el-tabs v-model="activeTab" class="settings-tabs">
-        <el-tab-pane label="批量设置发货倍数" name="multiplier"></el-tab-pane>
-        <el-tab-pane label="批量设置发货附言" name="message"></el-tab-pane>
-        <el-tab-pane label="批量设置优惠" name="discount"></el-tab-pane>
-      </el-tabs>
-
-      <!-- 商品轮播图 -->
-      <div class="product-section">
-        <div class="section-row">
-          <div class="section-label">商品轮播图</div>
-          <div class="section-content">
-            <div class="upload-wrapper">
-              <el-upload
-                v-model:file-list="fileList"
-                action="#"
-                list-type="picture-card"
-                :auto-upload="false"
-                :limit="10"
-              >
-                <el-icon><Plus /></el-icon>
-              </el-upload>
-            </div>
-            <div class="upload-controls">
-              <el-radio-group v-model="uploadSource" size="small">
-                <el-radio label="local">本地</el-radio>
-                <el-radio label="library">图库</el-radio>
-              </el-radio-group>
-            </div>
-            <div class="upload-info">
-              <span class="info-text">上传至这里的图片将作为商品首图，不上传将默认为账号首图</span>
-              <a href="#" class="link-text" @click.prevent>设置优先</a>
-              <a href="#" class="link-text danger" @click.prevent>删除</a>
-            </div>
-            <div class="upload-count">已经选择{{ fileList.length }}/10张</div>
-          </div>
-        </div>
-
-        <!-- 商品标题 -->
-        <div class="section-row">
-          <div class="section-label">商品标题<span class="required">*</span></div>
-          <div class="section-content">
-            <el-input
-              v-model="productTitle"
-              placeholder="我现在想求一下商品"
-              maxlength="50"
-              show-word-limit
-              style="width: 100%;"
-            />
-          </div>
-        </div>
-
-        <!-- 商品标题快速选填 -->
-        <div class="section-row">
-          <div class="section-label">商品标题<span class="sub-text">快速选填</span></div>
-          <div class="section-content quick-inputs">
-            <div v-if="formData.cardDraws" class="quick-input-item">
-              <span class="input-name">抽卡次数</span>
-              <el-input-number v-model="titleFields.cardDraws" :min="0" size="small" style="width: 120px;" />
-            </div>
-            <div v-if="formData.primogems" class="quick-input-item">
-              <span class="input-name">原石</span>
-              <el-input-number v-model="titleFields.primogems" :min="0" size="small" style="width: 120px;" />
-            </div>
-            <div v-if="formData.acquaintFate" class="quick-input-item">
-              <span class="input-name">相遇之缘</span>
-              <el-input-number v-model="titleFields.acquaintFate" :min="0" size="small" style="width: 120px;" />
-            </div>
-            <div v-if="formData.intertwinedFate" class="quick-input-item">
-              <span class="input-name">纠缠之缘</span>
-              <el-input-number v-model="titleFields.intertwinedFate" :min="0" size="small" style="width: 120px;" />
-            </div>
-            <div v-if="formData.accountLevel" class="quick-input-item">
-              <span class="input-name">账号等级</span>
-              <el-input-number v-model="titleFields.accountLevel" :min="0" size="small" style="width: 120px;" />
-            </div>
-            <div v-if="formData.popularCharacters" class="quick-input-item">
-              <span class="input-name">热门角色</span>
-              <el-input v-model="titleFields.popularCharacters" size="small" style="width: 200px;" />
-            </div>
-          </div>
-        </div>
-
-        <!-- 标题预览 -->
-        <div class="section-row">
-          <div class="section-label">标题预览</div>
-          <div class="section-content">
-            <div class="preview-box">
-              {{ generatedTitle || '抽卡次数99 原石200 账号等级60 我现在想求一下商品' }}
-            </div>
-          </div>
-        </div>
-
-        <!-- 规格与库存 -->
-        <div class="section-row">
-          <div class="section-label">规格与库存</div>
-          <div class="section-content inventory-content">
-            <!-- 商品库存 -->
-            <div class="inventory-line">
-              <span class="line-label">商品库存</span>
-              <el-select v-model="inventoryType" placeholder="请选择" size="default" style="width: 120px;">
-                <el-option label="选择" value="select" />
-              </el-select>
-              <el-select v-model="inventoryCategory" placeholder="选择" size="default" style="width: 120px; margin-left: 12px;">
-                <el-option label="选择" value="category" />
-              </el-select>
-              <el-input v-model="unitPrice" placeholder="请输入单价" size="default" style="width: 200px; margin-left: 12px;">
-                <template #prepend>
-                  <span style="color: #999;">默认值 N%</span>
-                </template>
-              </el-input>
-            </div>
-
-            <!-- 发货倍数和附言 -->
-            <div class="inventory-line">
-              <span class="line-label">发货倍数</span>
-              <span class="line-hint">默认为 N%</span>
-              <span class="line-value">发货倍数</span>
-              <span class="line-label" style="margin-left: 40px;">发货附言</span>
-              <el-input placeholder="请输入您的留言" size="default" style="width: 300px; margin-left: 12px;" />
-              <el-button type="text" style="color: #1890ff; margin-left: 12px;">编辑</el-button>
-            </div>
-
-            <!-- 设置优惠预设 -->
-            <div class="inventory-line">
-              <span class="line-label">设置优惠预设：</span>
-              <el-button size="small" plain>100件，2元</el-button>
-              <el-button size="small" plain style="margin-left: 8px;">200件，1.5元</el-button>
-              <el-button size="small" plain style="margin-left: 8px;">300件，1.3元</el-button>
-              <el-button size="small" plain style="margin-left: 8px;">400件，1元</el-button>
-            </div>
-          </div>
-        </div>
+      <div class="buttons">
+        <el-button class="button">批量设置发货倍数</el-button>
+        <el-button class="button">批量设置发货附言</el-button>
+        <el-button class="button">批量设置优惠</el-button>
       </div>
+      
+      
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-import { QuestionFilled, Plus } from '@element-plus/icons-vue'
+import { ref, watch } from 'vue'
+import { QuestionFilled, Plus, Close } from '@element-plus/icons-vue'
 
 const props = defineProps({
   modelValue: {
@@ -206,55 +101,50 @@ const emit = defineEmits(['update:modelValue'])
 const formData = ref({ ...props.modelValue })
 const localSelectAll = ref(false)
 
-// 批量设置标签
-const activeTab = ref('multiplier')
+// SKU类型
+const skuType = ref('with')
 
-// 商品轮播图
-const fileList = ref([])
+// 文件上传相关
+const uploadedFiles = ref([])
 const uploadSource = ref('local')
+const fileInput = ref(null)
 
-// 商品标题
-const productTitle = ref('')
+const triggerUpload = () => {
+  if (uploadSource.value === 'local') {
+    fileInput.value?.click()
+  } else {
+    // 图库选择逻辑
+    console.log('打开图库')
+  }
+}
 
-// 商品标题快速填写字段
-const titleFields = ref({
-  cardDraws: 99,
-  primogems: 200,
-  acquaintFate: 0,
-  intertwinedFate: 0,
-  accountLevel: 60,
-  popularCharacters: ''
-})
-
-// 生成的标题
-const generatedTitle = computed(() => {
-  const parts = []
-  if (formData.value.cardDraws && titleFields.value.cardDraws) {
-    parts.push(`抽卡次数${titleFields.value.cardDraws}`)
-  }
-  if (formData.value.primogems && titleFields.value.primogems) {
-    parts.push(`原石${titleFields.value.primogems}`)
-  }
-  if (formData.value.acquaintFate && titleFields.value.acquaintFate) {
-    parts.push(`相遇之缘${titleFields.value.acquaintFate}`)
-  }
-  if (formData.value.intertwinedFate && titleFields.value.intertwinedFate) {
-    parts.push(`纠缠之缘${titleFields.value.intertwinedFate}`)
-  }
-  if (formData.value.accountLevel && titleFields.value.accountLevel) {
-    parts.push(`账号等级${titleFields.value.accountLevel}`)
-  }
-  if (formData.value.popularCharacters && titleFields.value.popularCharacters) {
-    parts.push(`热门角色${titleFields.value.popularCharacters}`)
+const handleFileChange = (event) => {
+  const files = event.target.files
+  if (!files || files.length === 0) return
+  
+  for (let i = 0; i < files.length; i++) {
+    if (uploadedFiles.value.length >= 10) break
+    
+    const file = files[i]
+    const reader = new FileReader()
+    
+    reader.onload = (e) => {
+      uploadedFiles.value.push({
+        url: e.target.result,
+        file: file
+      })
+    }
+    
+    reader.readAsDataURL(file)
   }
   
-  return parts.length > 0 ? parts.join(' ') + ' ' + productTitle.value : productTitle.value
-})
+  // 清空 input 以便重复选择同一文件
+  event.target.value = ''
+}
 
-// 规格与库存
-const inventoryType = ref('select')
-const inventoryCategory = ref('')
-const unitPrice = ref('')
+const removeFile = (index) => {
+  uploadedFiles.value.splice(index, 1)
+}
 
 const handleSelectAll = (val) => {
   formData.value.cardDraws = val
@@ -349,6 +239,137 @@ watch(formData, (newVal) => {
 /* 批量设置 */
 .batch-settings {
   margin-top: 24px;
+}
+.batch-settings .buttons .button {
+  background-color: rgb(51, 51, 51);
+  color: white;
+  margin-right: 12px;
+}
+
+/* 表格样式 */
+.batch-settings table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.batch-settings table td {
+  padding: 16px;
+  border: 1px solid #e8e8e8;
+  vertical-align: top;
+}
+
+.batch-settings table td:first-child {
+  width: 140px;
+  background-color: #fafafa;
+  font-weight: 500;
+  color: #333;
+}
+
+/* 文件上传样式 */
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.image-preview-list {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.image-preview-item {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.image-preview-item:hover .image-overlay {
+  opacity: 1;
+}
+
+.remove-icon {
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.upload-box {
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  background-color: #fafafa;
+}
+
+.upload-box:hover {
+  border-color: #1890ff;
+  background-color: #f0f5ff;
+}
+
+.upload-icon {
+  font-size: 32px;
+  color: #999;
+}
+
+.upload-box:hover .upload-icon {
+  color: #1890ff;
+}
+
+.upload-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.upload-actions .el-button {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #666;
+  padding: 8px 20px;
+}
+
+.upload-actions .el-button.active {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  color: white;
+}
+
+.upload-tip {
+  font-size: 13px;
+  color: #999;
+  line-height: 1.6;
+}
+
+.upload-tip .highlight {
+  color: #1890ff;
+  font-weight: 500;
 }
 
 .settings-tabs {
@@ -497,32 +518,235 @@ watch(formData, (newVal) => {
   min-height: 40px;
 }
 
-/* 规格与库存 */
-.inventory-content {
+/* 规格与库存表格 */
+.full-width {
   flex-direction: column;
-  gap: 16px;
 }
 
-.inventory-line {
+.inventory-table {
+  width: 100%;
+}
+
+:deep(.inventory-table .el-table__header-wrapper) {
+  display: none;
+}
+
+:deep(.inventory-table .el-table__cell) {
+  padding: 16px 0;
+  vertical-align: top;
+}
+
+:deep(.inventory-table .el-table__body-wrapper .el-table__cell:first-child) {
+  background: #fafafa;
+  padding-left: 20px;
+}
+
+:deep(.inventory-table .el-table__body-wrapper .el-table__cell:nth-child(2)) {
+  padding: 16px 20px;
+}
+
+:deep(.inventory-table .el-table__body-wrapper .el-table__cell:last-child) {
+  padding: 16px 20px;
+  background: #f9f9f9;
+}
+
+.table-label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.table-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
-.line-label {
+.hint-text {
+  font-size: 13px;
+  color: #999;
+}
+
+.value-text {
+  font-size: 14px;
+  color: #666;
+}
+
+.inline-label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  margin-left: 20px;
+}
+
+/* 上传区域 */
+.upload-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.upload-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.upload-tip {
+  font-size: 13px;
+  color: #999;
+}
+
+/* 快速填充网格 */
+.quick-fill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.field-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+}
+
+/* 标题预览 */
+.title-preview {
+  width: 100%;
+  max-width: 600px;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  min-height: 40px;
+  line-height: 1.5;
+}
+
+/* 优惠列表 */
+.discount-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.discount-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
   color: #333;
 }
 
-.line-hint {
-  font-size: 12px;
-  color: #999;
+/* 便捷操作栏 */
+.table-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
 }
 
-.line-value {
+/* 输入框样式 */
+:deep(.el-input-group__prepend) {
+  background-color: #fafafa;
+  color: #999;
+  border-color: #e8e8e8;
+  padding: 0 16px;
+}
+
+:deep(.el-input-group__append) {
+  background-color: #fafafa;
+  color: #666;
+  border-color: #e8e8e8;
+  padding: 0 16px;
+}
+
+:deep(.el-upload-list--picture-card .el-upload-list__item) {
+  width: 80px;
+  height: 80px;
+}
+
+:deep(.el-upload--picture-card) {
+  width: 80px;
+  height: 80px;
+}
+
+/* Element Plus 表单项样式 */
+:deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #333;
+}
+
+:deep(.el-input-group__append) {
+  background-color: #fafafa;
+  color: #666;
+  border-color: #e8e8e8;
+}
+
+:deep(.el-select) {
+  width: 100%;
+}
+
+/* SKU类型选择 */
+.sku-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.sku-tab {
+  flex: 1;
+  padding: 16px 24px;
+  background: #f5f5f5;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  text-align: center;
   font-size: 14px;
   color: #666;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.sku-tab:hover {
+  background: #e8e8e8;
+}
+
+.sku-tab.active {
+  background: #fff;
+  border-color: #1890ff;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+/* 商品基本信息标题 */
+.section-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+  margin: 0 0 24px 0;
+  display: flex;
+  align-items: center;
+}
+
+.title-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #1890ff;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 16px;
+  margin-right: 12px;
 }
 </style>
 

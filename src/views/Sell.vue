@@ -270,28 +270,8 @@
           </el-steps>
         </div>
 
-        <!-- SKU类型选择 -->
-        <div class="sku-tabs">
-          <div
-            class="sku-tab"
-            :class="{ active: skuType === 'with' }"
-            @click="skuType = 'with'"
-          >
-            带SKU商品发布（SKU上限N条）
-          </div>
-          <div
-            class="sku-tab"
-            :class="{ active: skuType === 'without' }"
-            @click="skuType = 'without'"
-          >
-            不带SKU商品
-          </div>
-        </div>
-
-        <!-- 商品基本信息 -->
+        <!-- 商品表单 -->
         <div class="form-section">
-          <h3 class="section-title"><span class="title-number">3.</span> 商品基本信息</h3>
-
           <!-- 自抽号/账号表单 -->
           <AccountForm 
             v-if="selectedTypeName === '自抽号' || selectedTypeName === '账号'" 
@@ -302,15 +282,10 @@
           <ItemForm 
             v-else-if="selectedTypeName === '道具'" 
             v-model="itemFormData"
+            @submit="submitForm"
           />
 
-          <!-- 表单操作按钮 -->
-          <div class="form-actions">
-            <el-button size="large" @click="prevStep">上一步</el-button>
-            <el-button type="primary" size="large" @click="submitForm">
-              发布商品
-            </el-button>
-          </div>
+
         </div>
       </div>
     </div>
@@ -476,9 +451,6 @@ const isStep1Complete = computed(() => {
   return selectedGame.value && selectedType.value
 })
 
-// 第二步表单数据
-const skuType = ref('without')
-
 // 账号表单数据
 const accountFormData = ref({
   cardDraws: false,
@@ -605,7 +577,6 @@ const resetForm = () => {
   selectedServer2Name.value = ''
   selectedServer3.value = null
   selectedServer3Name.value = ''
-  skuType.value = 'without'
   
   // 重置账号表单
   accountFormData.value = {
@@ -880,55 +851,8 @@ watch(() => route.query.productType, (newType) => {
   color: #999;
 }
 
-.sku-tabs {
-  display: flex;
-  gap: 0;
-  margin-bottom: 32px;
-  border-bottom: 2px solid #e8e8e8;
-}
-
-.sku-tab {
-  padding: 12px 24px;
-  cursor: pointer;
-  font-size: 15px;
-  color: #666;
-  position: relative;
-  transition: all 0.2s;
-}
-
-.sku-tab:hover {
-  color: #1890ff;
-}
-
-.sku-tab.active {
-  color: #1890ff;
-  font-weight: 500;
-}
-
-.sku-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #1890ff;
-}
-
 .form-section {
   padding: 0;
-}
-
-.section-title {
-  font-size: 18px;
-  color: #333;
-  margin: 0 0 24px 0;
-  font-weight: 500;
-}
-
-.title-number {
-  color: #1890ff;
-  margin-right: 8px;
 }
 
 .form-actions {
